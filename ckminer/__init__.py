@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from os.path import dirname, join
-from .miner import Miner
 
 # paths
 _package_root = dirname(__file__)
