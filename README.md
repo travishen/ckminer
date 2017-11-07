@@ -4,11 +4,12 @@ Chrome install required only.
 
 Usage
 ---
+2017 Activity
 
     >>$ python -m ckminer.2017act --user <--username--> --pwd <--password-->
 
-            Welcome to 2017 CK101's activity, check rules at this link:
-            https://ck101.com/thread-4133697-1-1.html
+    Welcome to 2017 CK101's activity, check rules at this link:
+    https://ck101.com/thread-4133697-1-1.html
 
     Collecting latest post from 鬍小編...
     Collecting latest post from 手殘星妹子...
