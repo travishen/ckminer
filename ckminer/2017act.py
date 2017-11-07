@@ -9,14 +9,14 @@ import sys
 def parse_args(args):
     parser = ArgumentParser()
     parser.add_argument('--user', help='ck user name here.', required=True)
-    parser.add_argument('--password', help='cd user password here', required=True)
+    parser.add_argument('--pwd', help='cd user password here', required=True)
     return parser.parse_args()
 
 
 def main(args=None):
     args = parse_args(args)
-    if args.user and args.password:
-        run(args.user, args.password)
+    if args.user and args.pwd:
+        run(args.user, args.pwd)
 
 
 def run(user, password):
