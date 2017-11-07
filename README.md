@@ -1,10 +1,10 @@
-Installation
+# Installation
 ---
 Chrome install required only.
 
-Usage
----
-## 2017 Activity
+# Usage
+
+2017 Activity
 
     >>$ python -m ckminer.2017act --user <--username--> --pwd <--password-->
 
