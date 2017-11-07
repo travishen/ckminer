@@ -16,7 +16,6 @@ import datetime
 class Miner(object):
 
     LOGIN_PAGE = 'https://ck101.com/member.php?mod=logging&action=login'
-    TOPIC_REWORD_PAGES = 20
     TOPIC_REWORD_POINTS = 5
 
     def __init__(self, driver_path, writer_csv_path, history_path):
@@ -52,8 +51,6 @@ class Miner(object):
                 continue
             self.driver.get(link)
             self.driver.execute_script('window.scrollTo(0,document.body.scrollHeight);')
-            if rewards >= Miner.TOPIC_REWORD_PAGES * Miner.TOPIC_REWORD_POINTS:
-                break
             try:
                 if not self.wait_visible('div.topicReward5Progress'):
                     print('Not an active page.')

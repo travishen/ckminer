@@ -3,7 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="8fe7b9bc-068c-4887-81be-14b4f2004162" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ckminer/2017act.py" afterPath="$PROJECT_DIR$/ckminer/2017act.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ckminer/miner.py" afterPath="$PROJECT_DIR$/ckminer/miner.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -36,7 +36,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="2017act.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="2017act.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/ckminer/2017act.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="245">
@@ -48,11 +48,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="miner.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="miner.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/ckminer/miner.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="204">
-              <caret line="70" column="51" lean-forward="false" selection-start-line="70" selection-start-column="51" selection-end-line="70" selection-end-column="51" />
+              <caret line="52" column="88" lean-forward="false" selection-start-line="52" selection-start-column="88" selection-end-line="52" selection-end-column="88" />
               <folding>
                 <element signature="e#46#83#0" expanded="true" />
               </folding>
@@ -120,9 +120,9 @@
         <option value="$PROJECT_DIR$/ckminer/runner.py" />
         <option value="$PROJECT_DIR$/ckminer/history/history_201711080621.csv" />
         <option value="$PROJECT_DIR$/ckminer/history/history_201711080614.csv" />
-        <option value="$PROJECT_DIR$/ckminer/miner.py" />
         <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/ckminer/2017act.py" />
+        <option value="$PROJECT_DIR$/ckminer/miner.py" />
       </list>
     </option>
   </component>
@@ -347,16 +347,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/ckminer/miner.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="70" column="51" lean-forward="false" selection-start-line="70" selection-start-column="51" selection-end-line="70" selection-end-column="51" />
-          <folding>
-            <element signature="e#46#83#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/ckminer/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="190">
@@ -389,6 +379,16 @@
           <caret line="27" column="39" lean-forward="true" selection-start-line="27" selection-start-column="39" selection-end-line="27" selection-end-column="39" />
           <folding>
             <element signature="e#46#81#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ckminer/miner.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="204">
+          <caret line="52" column="88" lean-forward="false" selection-start-line="52" selection-start-column="88" selection-end-line="52" selection-end-column="88" />
+          <folding>
+            <element signature="e#46#83#0" expanded="true" />
           </folding>
         </state>
       </provider>
