@@ -1,6 +1,6 @@
 # Installation
----
-Chrome install required only.
+
+Chrome install required only
 
 # Usage
 
