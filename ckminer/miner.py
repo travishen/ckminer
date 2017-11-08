@@ -18,6 +18,7 @@ class Miner(object):
 
     LOGIN_PAGE = 'https://ck101.com/member.php?mod=logging&action=login'
     TOPIC_REWORD_POINTS = 5
+    TOPIC_REWORD_PAGES = 20
 
     def __init__(self, driver_path, writer_csv_path, history_path, plugin_path=None):
         self.writer_csv_path = writer_csv_path
@@ -47,37 +48,50 @@ class Miner(object):
         new_history = []
         history = User.load_history(self.history_path)
         rewards = 0
+        full = rewards >= Miner.TOPIC_REWORD_PAGES * Miner.TOPIC_REWORD_POINTS
+
+        # load popular writer from index
         names = Quester.get_writer_from_index()
         for writer in Writer.load_writer(self.writer_csv_path, names=names):
             print('Collecting latest post from %s...' % writer.username)
-            links += Quester.get_top_post(writer.uid, count=6)
-        for link in links:
-            if link in history:
-                continue
-            self.driver.get(link)
-            self.driver.execute_script('window.scrollTo(0,document.body.scrollHeight);')
-            try:
-                if not self.wait_visible('div.topicReward5Progress'):
-                    print('Not an active page.')
-                    continue
-                locator = 'div.topicReward5Progress.getRewards'
-                if self.wait_visible(locator):
-                    element = self.wait_click(locator)
-                    element.click()
-                if self.wait_visible('div.popContent.popContent__2017activity'):
-                    result = self.find('p.topTitle.topTitle__2017activity')
-                    if u'＋5' in result.text:
-                        rewards += Miner.TOPIC_REWORD_POINTS
-                        print('+5 topic rewards! Now you have %s...' % rewards)
-                    elif u'僅能領取一次' in result.text:
-                        print('Post already drained...')
-                    elif u'已達到簽到上限' in result.text:
-                        print('Pocket full today!')
-                        break
-            except:
-                pass
-            finally:
-                new_history.append(link)
+            links += Quester.get_top_post(writer.uid, count=10)
+
+        while not full:
+            if len(links) == 0:
+                # load more ck-writer from writer.csv
+                print('All posts drained... Loading more posts...')
+                for writer in Writer.load_writer(self.writer_csv_path, ckwriter=True):
+                    links += Quester.get_top_post(writer.uid, count=10)
+                full = True
+            for link in links:
+                try:
+                    if link in history or link in new_history:
+                        continue
+                    self.driver.get(link)
+                    self.driver.execute_script('window.scrollTo(0,document.body.scrollHeight);')
+                    if not self.wait_visible('div.topicReward5Progress'):
+                        print('Not an active page.')
+                        continue
+                    locator = 'div.topicReward5Progress.getRewards'
+                    if self.wait_visible(locator):
+                        element = self.wait_click(locator)
+                        element.click()
+                    if self.wait_visible('div.popContent.popContent__2017activity'):
+                        result = self.find('p.topTitle.topTitle__2017activity')
+                        if u'＋5' in result.text:
+                            rewards += Miner.TOPIC_REWORD_POINTS
+                            print('+5 topic rewards! Now you have %s...' % rewards)
+                        elif u'僅能領取一次' in result.text:
+                            print('Post already drained...')
+                        elif u'達到簽到上限' in result.text:
+                            print('Pocket full today!')
+                            full = True
+                            break
+                except:
+                    pass
+                finally:
+                    new_history.append(link)
+                    links.remove(link)
         User.create_history(self.history_path, new_history)
 
     def wait_visible(self, locator, by='css'):
@@ -208,6 +222,7 @@ class User(object):
 
     @staticmethod
     def create_history(path, links):
+        print('Storing browser history...')
         with open('%s\history_%s.csv' % (path, datetime.datetime.today().strftime('%Y%m%d%H%M')), 'w') as file:
             file.write('\n'.join(links))
 
