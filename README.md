@@ -4,7 +4,7 @@ lxml, selenium, requests and chrome browser install required
 
 # Usage
 
-2017 Activity
+Collecting rewards of 2017 Activity:
 
     >>$ python -m ckminer.2017act --user <--username--> --pwd <--password-->
 
