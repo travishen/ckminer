@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import print_function
-from .selenium import webdriver
-from .selenium.webdriver.common.by import By
-from .selenium.webdriver.support.ui import WebDriverWait
-from .selenium.webdriver.support import expected_conditions as EC
-from .selenium.common.exceptions import TimeoutException
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver import ChromeOptions
 import requests
 from lxml import html
 import json
@@ -18,14 +19,18 @@ class Miner(object):
     LOGIN_PAGE = 'https://ck101.com/member.php?mod=logging&action=login'
     TOPIC_REWORD_POINTS = 5
 
-    def __init__(self, driver_path, writer_csv_path, history_path):
-        self.driver = Miner.create_driver(driver_path)
+    def __init__(self, driver_path, writer_csv_path, history_path, plugin_path=None):
         self.writer_csv_path = writer_csv_path
         self.history_path = history_path
+        self.plugin_path = plugin_path
+        self.driver = Miner.create_driver(driver_path, plugin_path)
 
     @staticmethod
-    def create_driver(driver_path):
-        driver = webdriver.Chrome(driver_path)
+    def create_driver(driver_path, plugin_path):
+        opt = ChromeOptions()
+        if plugin_path:
+            opt.add_extension(plugin_path)
+        driver = webdriver.Chrome(driver_path, chrome_options=opt)
         return driver
 
     def login(self, user, password):
@@ -44,8 +49,8 @@ class Miner(object):
         rewards = 0
         names = Quester.get_writer_from_index()
         for writer in Writer.load_writer(self.writer_csv_path, names=names):
-            print('Collecting latest post from {}...'.format(writer.username))
-            links += Quester.get_top_post(writer.uid, count=5)
+            print('Collecting latest post from %s...' % writer.username)
+            links += Quester.get_top_post(writer.uid, count=6)
         for link in links:
             if link in history:
                 continue
@@ -61,12 +66,12 @@ class Miner(object):
                     element.click()
                 if self.wait_visible('div.popContent.popContent__2017activity'):
                     result = self.find('p.topTitle.topTitle__2017activity')
-                    if '＋5' in result.text:
+                    if u'＋5' in result.text:
                         rewards += Miner.TOPIC_REWORD_POINTS
-                        print('+5 topic rewards! Now you have {}...'.format(rewards))
-                    elif '僅能領取一次' in result.text:
+                        print('+5 topic rewards! Now you have %s...' % rewards)
+                    elif u'僅能領取一次' in result.text:
                         print('Post already drained...')
-                    elif '已達到簽到上限' in result.text:
+                    elif u'已達到簽到上限' in result.text:
                         print('Pocket full today!')
                         break
             except:
@@ -180,7 +185,7 @@ class Writer(object):
 
     @staticmethod
     def load_writer(csv, ckwriter=None, names=None):
-        with open(csv, 'rb') as csv:
+        with open(csv, 'r') as csv:
             writers = json.load(csv, object_hook=Writer.hook)
         if ckwriter is not None:
             return Writer.ckwriter_filter(writers, ckwriter)
@@ -203,14 +208,14 @@ class User(object):
 
     @staticmethod
     def create_history(path, links):
-        with open('{}\history_{}.csv'.format(path, datetime.datetime.today().strftime('%Y%m%d%H%M')), 'w') as file:
+        with open('%s\history_%s.csv' % (path, datetime.datetime.today().strftime('%Y%m%d%H%M')), 'w') as file:
             file.write('\n'.join(links))
 
     @staticmethod
     def load_history(path):
         links = []
         for filename in os.listdir(path):
-            with open('{}\{}'.format(path, filename), 'r') as file:
+            with open('%s\%s' % (path, filename), 'r') as file:
                 links += file.read().splitlines()
         return links
 

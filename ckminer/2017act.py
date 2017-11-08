@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from argparse import ArgumentParser
-from . import _driver_path, _writer_csv_path, _history_path
+from . import _driver_path, _writer_csv_path, _history_path, _block_image_plugin_path
 from .miner import Miner
 import sys
 
@@ -25,7 +25,7 @@ def run(user, password):
             https://ck101.com/thread-4133697-1-1.html
             '''
     print(brief)
-    miner = Miner(_driver_path, _writer_csv_path, _history_path)
+    miner = Miner(_driver_path, _writer_csv_path, _history_path, _block_image_plugin_path)
     miner.login(user, password)
     miner.collect_topic_rewards()
     miner.driver.quit()

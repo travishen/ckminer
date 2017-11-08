@@ -1,6 +1,6 @@
 # Installation
 
-Chrome install required only
+lxml, selenium, requests and chrome browser install required
 
 # Usage
 
