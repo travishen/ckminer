@@ -20,14 +20,15 @@ class Miner(object):
     TOPIC_REWORD_POINTS = 5
     TOPIC_REWORD_PAGES = 20
 
-    def __init__(self, driver_path, writer_csv_path, history_path, plugin_path=None):
+    def __init__(self, driver_path, writer_csv_path=None, history_path=None, plugin_path=None):
         self.writer_csv_path = writer_csv_path
         self.history_path = history_path
         self.plugin_path = plugin_path
-        self.driver = Miner.create_driver(driver_path, plugin_path)
+        self.driver = Miner.create_driver(driver_path, plugin_path=plugin_path)
 
     @staticmethod
-    def create_driver(driver_path, plugin_path):
+    def create_driver(driver_path, **options):
+        plugin_path = options.get('plugin_path', None)
         opt = ChromeOptions()
         if plugin_path:
             opt.add_extension(plugin_path)
@@ -188,7 +189,7 @@ class Writer(object):
     @staticmethod
     def ckwriter_filter(writers, icon=True):
         for writer in writers:
-            if writer.icon == 1 if icon else 0:
+            if writer.icon == (1 if icon else 0):
                 yield writer
 
     @staticmethod
@@ -198,13 +199,15 @@ class Writer(object):
                 yield writer
 
     @staticmethod
-    def load_writer(csv, ckwriter=None, names=None):
+    def load_writer(csv, **filers):
+        ckwriter = filers.get('ckwriter', None)
+        names = filers.get('names', None)
         with open(csv, 'r') as csv:
             writers = json.load(csv, object_hook=Writer.hook)
         if ckwriter is not None:
-            return Writer.ckwriter_filter(writers, ckwriter)
+            writers = Writer.ckwriter_filter(writers, ckwriter)
         if names:
-            return Writer.name_filter(writers, names)
+            writers = Writer.name_filter(writers, names)
         return writers
 
     @classmethod
