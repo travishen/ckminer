@@ -12,6 +12,7 @@ from lxml import html
 import json
 import os
 import datetime
+import time
 
 
 class Miner(object):
@@ -35,6 +36,7 @@ class Miner(object):
         return driver
 
     def login(self, user, password):
+        print('User try login...')
         self.driver.get(Miner.LOGIN_PAGE)
         ipt_user = self.find('input[name="username"]')
         ipt_pwd = self.find('input[name="password"]')
@@ -46,6 +48,27 @@ class Miner(object):
             print('Login Failed... Please retry...')
             return False
         return True
+
+    def collect_space_rewards(self, limit):
+        users = Quester.get_top_user()
+        links = []
+        visited = 0
+        # start from most popular user
+        self.driver.get(Quester.USER_PAGE % users[0])
+        if self.wait_visible('visitor_content', by='id', wait=5):
+            links += [(e.get_attribute('href'), e.get_attribute('title'))
+                      for e in self.find('#visitor_content p>a', single=False)]
+            while visited <= limit:
+                if len(links) <= 10:
+                    links += [(e.get_attribute('href'), e.get_attribute('title'))
+                              for e in self.find('#visitor_content p>a', single=False)]
+                for link in links:
+                    print('Visiting %s...' % link[1])
+                    self.driver.get(link[0])
+                    time.sleep(1)
+                    if self.wait_visible('visitor_content', by='id', wait=5):
+                        visited += 1
+                    links.remove(link)
 
     def collect_topic_rewards(self):
         links = []
@@ -108,7 +131,7 @@ class Miner(object):
         try:
             if by == 'css':
                 element = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, locator)))
-            elif by == 'id':
+            if by == 'id':
                 element = wait.until(EC.visibility_of_element_located((By.ID, locator)))
         except TimeoutException:
             return False
@@ -121,20 +144,26 @@ class Miner(object):
         try:
             if by == 'css':
                 element = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, locator)))
-            elif by == 'id':
+            if by == 'id':
                 element = wait.until(EC.element_to_be_clickable((By.ID, locator)))
         except TimeoutException:
             return False
         finally:
             return element
 
-    def find(self, locator, by='css'):
+    def find(self, locator, by='css', single=True):
         element = None
         try:
             if by == 'css':
-                element = self.driver.find_element_by_css_selector(locator)
-            elif by == 'id':
-                element = self.driver.find_element_by_id(locator)
+                if single:
+                    element = self.driver.find_element_by_css_selector(locator)
+                else:
+                    element = self.driver.find_elements_by_css_selector(locator)
+            if by == 'id':
+                if single:
+                    element = self.driver.find_element_by_id(locator)
+                else:
+                    element = self.driver.find_element_by_id(locator)
         except:
             return False
         finally:
@@ -142,9 +171,11 @@ class Miner(object):
 
 
 class Quester(object):
+
     INDEX = 'https://ck101.com'
     HOME_PAGE = 'https://ck101.com/home.php'
     API_PAGE = 'http://ck101.com/api.php'
+    USER_PAGE = 'https://ck101.com/space-username-%s.html'
     HEADERS = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
 
     @staticmethod
@@ -176,6 +207,13 @@ class Quester(object):
         parsed_page = html.fromstring(res.content)
         links = parsed_page.xpath('//a[@class="title-spaceauthor "]/@href')
         return links[:count]
+
+    @staticmethod
+    def get_top_user():
+        res = requests.get(Quester.INDEX, headers=Quester.HEADERS)
+        parsed_page = html.fromstring(res.content)
+        users = parsed_page.xpath('//div[@class="rankBoardWrapper"]//a/@title')
+        return users
 
 
 class Writer(object):
