@@ -20,10 +20,9 @@ class Miner(object):
     TOPIC_REWORD_POINTS = 5
     TOPIC_REWORD_PAGES = 20
 
-    def __init__(self, driver_path, writer_csv_path=None, history_path=None, plugin_path=None):
-        self.writer_csv_path = writer_csv_path
-        self.history_path = history_path
-        self.plugin_path = plugin_path
+    BLOCK_IMG_PLUG_PATH = None
+
+    def __init__(self, driver_path, plugin_path=None):
         self.driver = Miner.create_driver(driver_path, plugin_path=plugin_path)
 
     @staticmethod
@@ -43,17 +42,21 @@ class Miner(object):
         ipt_pwd.send_keys(password)
         btn_submit = self.wait_click('button[name="loginsubmit"]')
         btn_submit.click()
+        if not self.wait_url_change():
+            print('Login Failed... Please retry...')
+            return False
+        return True
 
     def collect_topic_rewards(self):
         links = []
         new_history = []
-        history = User.load_history(self.history_path)
+        history = User.load_history()
         rewards = 0
         full = rewards >= Miner.TOPIC_REWORD_PAGES * Miner.TOPIC_REWORD_POINTS
 
         # load popular writer from index
         names = Quester.get_writer_from_index()
-        for writer in Writer.load_writer(self.writer_csv_path, names=names):
+        for writer in Writer.load_writer(names=names):
             print('Collecting latest post from %s...' % writer.username)
             links += Quester.get_top_post(writer.uid, count=10)
 
@@ -61,7 +64,7 @@ class Miner(object):
             if len(links) == 0:
                 # load more ck-writer from writer.csv
                 print('All posts drained... Loading more posts...')
-                for writer in Writer.load_writer(self.writer_csv_path, ckwriter=True):
+                for writer in Writer.load_writer(ckwriter=True):
                     links += Quester.get_top_post(writer.uid, count=10)
                 full = True
             for link in links:
@@ -93,10 +96,14 @@ class Miner(object):
                 finally:
                     new_history.append(link)
                     links.remove(link)
-        User.create_history(self.history_path, new_history)
+        User.create_history(new_history)
 
-    def wait_visible(self, locator, by='css'):
-        wait = WebDriverWait(self.driver, 10)
+    def wait_url_change(self, wait=10):
+        wait = WebDriverWait(self.driver, wait)
+        return wait.until(EC.title_contains("卡提諾論壇"))
+
+    def wait_visible(self, locator, by='css', wait=10):
+        wait = WebDriverWait(self.driver, wait)
         element = None
         try:
             if by == 'css':
@@ -108,8 +115,8 @@ class Miner(object):
         finally:
             return element
 
-    def wait_click(self, locator, by='css'):
-        wait = WebDriverWait(self.driver, 10)
+    def wait_click(self, locator, by='css', wait=10):
+        wait = WebDriverWait(self.driver, wait)
         element = None
         try:
             if by == 'css':
@@ -159,15 +166,6 @@ class Quester(object):
         return dic['data']
 
     @staticmethod
-    def update_writer(csv, from_page=1, to_page=3):
-        writers = []
-        for page in range(from_page, to_page + 1):
-            writers += Quester.get_writer_from_api(page)
-        with open(csv, 'w') as csv:
-            csv.write(json.dumps([writer.__dict__ for writer in writers]))
-        print('Done.')
-
-    @staticmethod
     def get_top_post(uid, count=1):
         params = {
             'mod': 'space',
@@ -181,6 +179,9 @@ class Quester(object):
 
 
 class Writer(object):
+
+    CSV_PATH = None
+
     def __init__(self, uid=None, icon=None, username=None):
         self.uid = uid
         self.icon = icon
@@ -198,17 +199,26 @@ class Writer(object):
             if writer.username in names:
                 yield writer
 
-    @staticmethod
-    def load_writer(csv, **filters):
+    @classmethod
+    def load_writer(cls, **filters):
         ckwriter = filters.get('ckwriter', None)
         names = filters.get('names', None)
-        with open(csv, 'r') as csv:
+        with open(cls.CSV_PATH, 'r') as csv:
             writers = json.load(csv, object_hook=Writer.hook)
         if ckwriter is not None:
             writers = Writer.ckwriter_filter(writers, ckwriter)
         if names:
             writers = Writer.name_filter(writers, names)
         return writers
+
+    @classmethod
+    def update_writer(cls, from_page=1, to_page=3):
+        writers = []
+        for page in range(from_page, to_page + 1):
+            writers += Quester.get_writer_from_api(page)
+        with open(cls.CSV_PATH, 'w') as csv:
+            csv.write(json.dumps([writer.__dict__ for writer in writers]))
+        print('Done.')
 
     @classmethod
     def hook(cls, dic):
@@ -223,17 +233,22 @@ class Writer(object):
 
 class User(object):
 
-    @staticmethod
-    def create_history(path, links):
+    HISTORY_PATH = None
+
+    @classmethod
+    def create_history(cls, links):
+        if not links:
+            return
         print('Storing browser history...')
-        with open('%s\history_%s.csv' % (path, datetime.datetime.today().strftime('%Y%m%d%H%M')), 'w') as file:
+        file_name = datetime.datetime.today().strftime('%Y%m%d%H%M')
+        with open('%s\history_%s.csv' % (cls.HISTORY_PATH, file_name), 'w') as file:
             file.write('\n'.join(links))
 
-    @staticmethod
-    def load_history(path):
+    @classmethod
+    def load_history(cls):
         links = []
-        for filename in os.listdir(path):
-            with open('%s\%s' % (path, filename), 'r') as file:
+        for filename in os.listdir(cls.HISTORY_PATH):
+            with open('%s\%s' % (cls.HISTORY_PATH, filename), 'r') as file:
                 links += file.read().splitlines()
         return links
 
