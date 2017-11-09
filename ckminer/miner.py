@@ -17,6 +17,7 @@ import time
 
 class Miner(object):
 
+    TITLE = '卡提諾論壇'
     LOGIN_PAGE = 'https://ck101.com/member.php?mod=logging&action=login'
     TOPIC_REWORD_POINTS = 5
     TOPIC_REWORD_PAGES = 20
@@ -123,7 +124,7 @@ class Miner(object):
 
     def wait_url_change(self, wait=10):
         wait = WebDriverWait(self.driver, wait)
-        return wait.until(EC.title_contains("卡提諾論壇"))
+        return wait.until(EC.title_contains(Miner.TITLE))
 
     def wait_visible(self, locator, by='css', wait=10):
         wait = WebDriverWait(self.driver, wait)
