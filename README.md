@@ -28,7 +28,7 @@ Collecting rewards of 2017 Activity:
 Update writers from api
 
     >>import ckminer
-    >>ckminer.update_writer(from_page=1, to_page=5)
+    >>ckminer.update_writer()
 
 
 
