@@ -199,9 +199,9 @@ class Writer(object):
                 yield writer
 
     @staticmethod
-    def load_writer(csv, **filers):
-        ckwriter = filers.get('ckwriter', None)
-        names = filers.get('names', None)
+    def load_writer(csv, **filters):
+        ckwriter = filters.get('ckwriter', None)
+        names = filters.get('names', None)
         with open(csv, 'r') as csv:
             writers = json.load(csv, object_hook=Writer.hook)
         if ckwriter is not None:
