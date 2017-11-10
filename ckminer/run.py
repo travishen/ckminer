@@ -11,7 +11,7 @@ def parse_args(args):
     parser.add_argument('--user', help='ck user name here.', required=True)
     parser.add_argument('--pwd', help='ck user password here.', required=True)
     parser.add_argument('--act2017', help='present to join 2017 activity.', action='store_true')
-    parser.add_argument('--space', help='set numbers to visit user spaces.')
+    parser.add_argument('--space', help='set numbers to visit user spaces.', nargs='?', const=5, type=int)
     return parser.parse_args()
 
 
@@ -25,7 +25,6 @@ def run(args):
     miner = Miner(_driver_path, Miner.BLOCK_IMG_PLUG_PATH)
     if miner.login(args.user, args.pwd):
         if args.space:
-            limit = 5
             brief = '''          
             -----------------------------------------------------------
             Randomly visiting user spaces for collecting rewards. 
@@ -35,12 +34,7 @@ def run(args):
 
             '''
             print(brief)
-            try:
-                limit = int(args.space)
-            except ValueError:
-                print('Your did not pass the right argument, visit 5 user by default...')
-            finally:
-                miner.collect_space_rewards(limit)
+            miner.collect_space_rewards(args.space)
 
         if args.act2017:
             brief = '''          

@@ -54,16 +54,20 @@ class Miner(object):
         users = Quester.get_top_user()
         links = []
         visited = 0
+        done = visited >= limit
         # start from most popular user
         self.driver.get(Quester.USER_PAGE % users[0])
         if self.wait_visible('visitor_content', by='id', wait=5):
             links += [(e.get_attribute('href'), e.get_attribute('title'))
                       for e in self.find('#visitor_content p>a', single=False)]
-            while visited <= limit:
+            while not done:
                 if len(links) <= 10:
                     links += [(e.get_attribute('href'), e.get_attribute('title'))
                               for e in self.find('#visitor_content p>a', single=False)]
                 for link in links:
+                    if visited >= limit:
+                        done = True
+                        break
                     print('Visiting %s...' % link[1])
                     self.driver.get(link[0])
                     time.sleep(1)
